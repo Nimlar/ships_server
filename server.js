@@ -1,19 +1,32 @@
-var game = require('./ships');
 var restify = require('restify');
 var cookieParser = require('restify-cookies');
 
 var server = restify.createServer();
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+/* Test server, to be able to dev les clients
+ *
+ * Only one game */
+
+/* global variable that fake the DB */
+var g_game_d =1;
+var g_player_id =0;
+g_planets = [{ pos : [.1  ,.3  ], size:10},
+			{ pos : [.3  ,.1  ], size:10},
+			{ pos : [.9  ,.7  ], size:10},
+			{ pos : [.7  ,.9  ], size:10},
+			{ pos : [.5  ,.5  ], size:10},
+			{ pos : [.78  ,.86  ], size:10},
+			{ pos : [.14  ,.23  ], size:10},
+			{ pos : [.36  ,.48  ], size:10},
+			];
+
+g_players_infos=[];
 
 function game_new(req, res, next) {
-    db.incr(name + ":g_id",
-            function (err, res) {
-            if (err) {
-                    next(err);
-            }
-            // TODO create planets
-            res.send({'game_id': res});
+            res.send({'game_id': g_game_d});
             return next();
-    });
 }
 
 function game_status(req, res, next) {
@@ -21,68 +34,61 @@ function game_status(req, res, next) {
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
 
-
-
+    res.send({ planets : g_planets,
+               players : g_players_infos ]
+               });
+    return next();
 }
+
+
 function player_new(req, res, next) {
     var g_id = req.params.game_id;
-        res.setCookie('p_id', res);
+    p_id = ++g_player_id;
+        res.setCookie('p_id', p_id);
         res.setCookie('g_id', g_id);
         /* TODO get planets from g_id */
-        /* TODO select start planets randomly */
+        /* TODO select sta  rt planets randomly */
         /* should send planets + start planet*/
         /* p_id, g_id are in cookies */
-
-        gameDB.planets.get(g_id, function(err,planets) {
-            if(err) {
-                return next(err);
-            }
-            res.send({'planets' : planets, 'pos' : 0 });
+            var planets=g_planets;
+            var planet_id = getRandomInt(0, planets.lenght);
+            var p_info= {id : p_id, score : 0, planet_id : planet_id };
+            g_player_infos[p_id]= p_info;
+            res.send(p_info);
             return next();
-        });
     });
 }
 
 function player_action(req, res, next) {
-    var g = new a.Game(db);
     var load=JSON.parse(req.body);
     var cookies = req.cookies;
+    var g_id = cookies['g_id'];
+    var p_id = cookies['p_id'];
+        g_player_infos[p_id]["action"]= load["action"];
         switch (load['action']) {
             case "move":
-                    gameDB.player.updatePos(p_id,
-                                    planet,
-                                    function(err) {
-                                            if(err) {
-                                                    return next(err);
-                                            }
-                                            return next();
-                                    });
+                g_player_infos[p_id]["pos"]= load["action"]["planet_id"];
                 break;
             case "steal":
+                break;
             case "work":
-                gameDB.player.updateAction(p_id,
-                        load['action'],
-                        function(err) {
-                            if(err) {
-                                return next(err);
-                            }
-                            return next();
-                        });
-
+                break;
         }
-
-function player_status(req, res, next) {
-    var g = new a.Game(db);
-    g.set_id(req.params.game_id, function(err, val) {
-        g.getInfoPlayer(req.params.p_id, function(err, p_info){
-            res.send({'game_id' : g.id, 'p_id' :req.params.p_id ,
-                      'info': p_info });
-            return next();
-	});
-    });
+    return next();
 }
 
-server.use(CookieParser.parse) 
+function player_status(req, res, next) {
+    var cookies = req.cookies;
+    var g_id = cookies['g_id'];
+    var p_id = cookies['p_id'];
+
+    var p_info = g_player_infos[p_id] ;
+            res.send({g_id : g_id, p_id :p_id ,
+                      'info': p_info });
+            return next();
+}
+
+server.use(CookieParser.parse)
       .use(restify.fullResponse())
       .use(restify.bodyParser())
       .use(restify.CORS({
@@ -100,10 +106,10 @@ server.get( /\/?.*\.html/,
 );
 
 server.get('/game/new', game_new);
-server.get('/game/:game_id/status', game_status);
-server.get('/game/:game_id/p/new', player_new);
-server.get('/game/:game_id/p/:p_id', player_status);
-server.post('/game/:game_id/p/:p_id/action', player_action);
+server.get('/game/status', game_status);
+server.get('/game/p/new', player_new);
+server.get('/game/p/status', player_status);
+server.post('/game/p/action', player_action);
 
 server.get('/sse', function(req, res) {
   // let request last as long as possible
