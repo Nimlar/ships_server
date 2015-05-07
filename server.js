@@ -20,47 +20,42 @@ function game_status(req, res, next) {
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
-
-
-
 }
+
 function player_new(req, res, next) {
     var g_id = req.params.game_id;
-        res.setCookie('p_id', res);
-        res.setCookie('g_id', g_id);
-        /* TODO get planets from g_id */
-        /* TODO select start planets randomly */
-        /* should send planets + start planet*/
-        /* p_id, g_id are in cookies */
+    res.setCookie('p_id', res);
+    res.setCookie('g_id', g_id);
+    /* TODO get planets from g_id */
+    /* TODO select start planets randomly */
+    /* should send planets + start planet*/
+    /* p_id, g_id are in cookies */
 
-        gameDB.planets.get(g_id, function(err,planets) {
-            if(err) {
-                return next(err);
-            }
-            res.send({'planets' : planets, 'pos' : 0 });
-            return next();
-        });
+    game.planets.get(g_id, function(err,planets) {
+        if(err) {
+            return next(err);
+        }
+        res.send({'planets' : planets, 'pos' : 0 });
+        return next();
     });
 }
 
-function player_action(req, res, next) {
-    var g = new a.Game(db);
+function player_action(req, res, next)
+{
     var load=JSON.parse(req.body);
     var cookies = req.cookies;
-        switch (load['action']) {
-            case "move":
-                    gameDB.player.updatePos(p_id,
-                                    planet,
-                                    function(err) {
-                                            if(err) {
-                                                    return next(err);
-                                            }
-                                            return next();
-                                    });
-                break;
-            case "steal":
+    switch (load['action']) {
+        case "move":
+            game.players.updatePos(p_id, planet, function(err) {
+            if(err) {
+                                           return next(err);
+                                       }
+                                       return next();
+                                   });
+                                   break;
+                                   case "steal":
             case "work":
-                gameDB.player.updateAction(p_id,
+                game.player.updateAction(p_id,
                         load['action'],
                         function(err) {
                             if(err) {
@@ -70,42 +65,13 @@ function player_action(req, res, next) {
                         });
 
         }
-
-function player_status(req, res, next) {
-    var g = new a.Game(db);
-    g.set_id(req.params.game_id, function(err, val) {
-        g.getInfoPlayer(req.params.p_id, function(err, p_info){
-            res.send({'game_id' : g.id, 'p_id' :req.params.p_id ,
-                      'info': p_info });
-            return next();
-	});
-    });
 }
 
-server.use(CookieParser.parse) 
-      .use(restify.fullResponse())
-      .use(restify.bodyParser())
-      .use(restify.CORS({
-    origins: ['https://toromanoff.org'],   // defaults to ['*']
-    credentials: true,                  // defaults to false
-    headers: ['x-foo']                 // sets expose-headers
-}));
+function player_status(req, res, next) {
+}
 
-
-server.get( /\/?.*\.html/,
-        restify.serveStatic({
-                directory : './static/',
-                default: 'index.html'
-        })
-);
-
-server.get('/game/new', game_new);
-server.get('/game/:game_id/status', game_status);
-server.get('/game/:game_id/p/new', player_new);
-server.get('/game/:game_id/p/:p_id', player_status);
-server.post('/game/:game_id/p/:p_id/action', player_action);
-
-server.get('/sse', function(req, res) {
+function see_manage(req, res)
+{
   // let request last as long as possible
   req.socket.setTimeout(0x7FFFFFFF);
   var cookies = req.cookies;
@@ -114,7 +80,7 @@ server.get('/sse', function(req, res) {
 
   var messageCount = 0;
 //  var subscriber = client.channel('test');
-    var subscriber = game.channel;
+  var subscriber = game.channel;
 
   // In case we encounter an error...print it out to the console
   subscriber.on("error", function(err) {
@@ -152,18 +118,42 @@ server.get('/sse', function(req, res) {
   req.on("close", function() {
     subscription.unsubscribe();
   });
-});
+};
 
+
+server.use(cookieParser.parse)
+      .use(restify.fullResponse())
+      .use(restify.bodyParser())
+      .use(restify.CORS({
+          origins: ['https://toromanoff.org'],   // defaults to ['*']
+          credentials: true,                  // defaults to false
+          headers: ['x-foo']                 // sets expose-headers
+      }));
+
+server.get( /\/?.*\.html/,
+           restify.serveStatic({
+               directory : './static/',
+               default: 'index.html' }));
+
+server.get('/game/new', game_new);
+server.get('/game/:game_id/status', game_status);
+server.get('/game/:game_id/p/new', player_new);
+server.get('/game/:game_id/p/:p_id', player_status);
+server.post('/game/:game_id/p/:p_id/action', player_action);
+server.get('/sse', see_manage);
 
 server.get('/fire-event/:event_name', function(req, res) {
-  game.channel.publish('update', ('"' + req.params.event_name + '" page visited') );
-  res.writeHead(200, {'Content-Type': 'text/html'});
-  res.write('All clients have received "' + req.params.event_name + '"');
-  res.end();
+    game.channel.publish('update', ('"' + req.params.event_name + '" page visited') );
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write('All clients have received "' + req.params.event_name + '"');
+    res.end();
 });
 
-
-server.listen(process.env.PORT, process.env.IP, function() {
-  console.log('listening: %s', server.url);
+uri = 'mongodb://localhost:27017/ships';
+game.connect(uri, function(err) {
+    if(err) throw err;
+    server.listen(process.env.PORT, process.env.IP, function() {
+        console.log('listening: %s', server.url);
+    });
 });
 

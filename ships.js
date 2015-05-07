@@ -1,15 +1,17 @@
-var Db = require('mongodb').Db;
-var Connection = require('mongodb').Connection;
-var Server = require('mongodb').Server;
-var BSON = require('mongodb').BSON;
-var ObjectID = require('mongodb').ObjectID;
-
+var mongodb = require('mongodb');
 var mubsub = require('mubsub');
 
 
+function Players(collection)
+{
+	this.collection = collection;
+}
+function Planets(collection)
+{
+	this.collection = collection;
+}
 
-
-function planets_get_all(g_id, cb) {
+Planets.prototype.get_all = function(g_id, cb) {
 	cb(null, [{ pos : [.1  ,.3  ], size:10},
 			{ pos : [.3  ,.1  ], size:10},
 			{ pos : [.9  ,.7  ], size:10},
@@ -22,46 +24,46 @@ function planets_get_all(g_id, cb) {
 };
 
 
-function planets_get(g_id, planets_id, cb) {
-	planets_get_all(g_id, function(err, planets) {
+Planets.prototype.get = function(g_id, planets_id, cb) {
+	this.get_all(g_id, function(err, planets) {
 		cb(err, planets[planets_id]);
-	}
-}
+	});
+};
 
-function player_setPos(g_id, p_id, planet_id, cb)
+Players.prototype.setPos= function(g_id, p_id, planet_id, cb) {
+	this.db
+};
+
+Players.prototype.setAction = function(g_id, p_id, action, cb) {
+
+};
+
+
+function Game()
 {
-	
+	this.db = null ;
+
 }
-function player_setAction(g_id, p_id, action, cb)
+
+Game.prototype.connect = function(uri, cb)
 {
+	var self = this;
+
+	mongodb.MongoClient.connect(uri, function(err, db) {
+		if (err)
+			cb(err);
+		self.db = db;
+		var client =  mubsub(uri); /* why with mubsub(db); the next line crash */
+		self.channel = client.channel('ships_channel');
+/*
+		var collec_player = db.collection('ships_player');
+		var collec_planet = db.collection('ships_planet');
+		self.players = new Players(collec_player);
+		self.planets = new Planets(collec_planet);
+*/
+		cb(null);
+	});
 
 }
 
-
-players = {
-	setPos    : player_setPos,
-	setAction : player_setAction
-}
-
-planets = {
-	get_all : planets_get_all,
-}
-
-function Game(host, port)
-{
-	this.db= new Db('node-mongo-employee', new Server(host, port, {safe: false}, {auto_reconnect: true}, {}));
-	this.db.open(function(){});
-
-	this.players = new Players();
-	this.planets = new Planets();
-
-	var client = mubsub('mongodb://localhost:27017/mubsub_example');
-	this.channel = client.channel('test');
-}
-
-exports.players=players;
-exports.planets=planets;
-exports.channel = channel;
-
-
-exports.game = game;
+module.exports = new Game();

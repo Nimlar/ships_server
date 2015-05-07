@@ -1,0 +1,9 @@
+{
+  "name": "ships",
+  "version": "0.0.0",
+  "dependencies": {
+    "mongodb": "^2.0.28",
+    "restify": "^3.0.2",
+    "restify-cookies": "^0.1.1"
+  }
+}
