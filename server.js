@@ -1,111 +1,95 @@
 var restify = require('restify');
 var cookieParser = require('restify-cookies');
-var mubsub = require('mubsub');
-
+var game = require('./ships');
 
 
 var server = restify.createServer();
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+
 /* Test server, to be able to dev les clients
  *
  * Only one game */
 
-/* global variable that fake the DB */
-var g_game_d =1;
-var g_player_id =0;
-var g_planets = [{ pos : [.1  ,.3  ], size:15},
-			{ pos : [.3  ,.1  ], size:15},
-			{ pos : [.9  ,.7  ], size:15},
-			{ pos : [.7  ,.9  ], size:15},
-			{ pos : [.5  ,.5  ], size:15},
-			{ pos : [.78  ,.86  ], size:15},
-			{ pos : [.14  ,.23  ], size:15},
-			{ pos : [.36  ,.48  ], size:15},
-			];
 
-var g_players_infos=[];
 
 function game_new(req, res, next) {
-            res.send({'game_id': g_game_d});
-            return next();
+    console.log("game_new");
+    game.get_new_id( function(err, game_id) {
+        if (err) {
+            return next(err);
+        }
+        res.send({'game_id': game_id});
+        return next();
+    });
 }
 
 function game_status(req, res, next) {
+    console.log("game_status");
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
-    var p_id = cookies['p_id'];
+    console.log(g_id);
 
-    res.send({ planets : g_planets,
-               players : g_players_infos
-               });
-    return next();
+    game.get_status(g_id, function(err, planets, players) {
+        if (err) {
+            return next(err);
+        }
+
+        res.send({ planets : planets,
+            players : players
+        });
+        return next();
+    });
 }
 
 
 function player_new(req, res, next)
 {
+    console.log("player_new");
     var g_id = req.params.game_id;
-    var p_id = ++g_player_id;
+    console.log(g_id);
+    game.player_new(g_id, function(err, p_id) {
+        if (err) {
+            return next(err);
+        }
         res.setCookie('p_id', p_id, {path: "/game/"});
         res.setCookie('g_id', g_id, {path: "/game/"});
-        /* TODO get planets from g_id */
-        /* TODO select sta  rt planets randomly */
-        /* should send planets + start planet*/
-        /* p_id, g_id are in cookies */
-            var planets=g_planets;
-            var planet_id = getRandomInt(0, planets.length);
-            var p_info= { move: {id : p_id, score : 0, planet_id : planet_id, action : 'idle' }};
-            g_players_infos[p_id]= p_info.move;
-            channel.publish('player', p_info );
-            res.send(p_info);
-            return next();
+        res.send({id:p_id});
+        return next();
+    });
 }
-
-function work_timeout(p_id)
-{
-    console.log("timeout");
-    channel.publish('player', {gain : [{id : p_id, value : 100}]} );
-}
-
-var TIMEOUT_WORK=2000;
-var TIMEOUT_STEAL=2500;
 
 function player_action(req, res, next) {
     var load=req.params;
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
-    g_players_infos[p_id]["action"]= load["action"];
-    switch (load['action']) {
-        case "move":
-            g_players_infos[p_id]["pos"]= load["planet_id"];
-            channel.publish('player', { move : {id : p_id, score: 0, planet_id: load["planet_id"], action : 'work' }} );
-            console.log("message sent");
-            g_players_infos[p_id]["time_id"] && clearTimeout(g_players_infos[p_id]["time_id"])
-            console.log("test");
-            g_players_infos[p_id]["time_id"] = setTimeout(work_timeout, TIMEOUT_WORK, p_id);
-            console.log("start timers");
-            break;
-        case "steal":
-            break;
-        case "work":
-            break;
-    }
-    return next();
+    console.log("player action");
+    console.log(g_id);
+    console.log(p_id);
+    game.player_action(g_id, p_id, load, function(err) {
+        if (err) {
+            return next(err);
+        }
+        return next();
+    });
 }
 
 function player_status(req, res, next) {
+    console.log("player_status");
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
+    console.log(g_id);
+    console.log(p_id);
 
     var p_info = g_players_infos[p_id] ;
-    res.send({g_id : g_id, p_id :p_id ,
-        'info': p_info });
-    return next();
+    game.player_status(g_id, p_id, function(err, p_info) {
+        if (err) {
+            return next(err);
+        }
+        res.send({g_id : g_id, p_id :p_id , 'info': p_info });
+        return next();
+    });
 }
 
 server.use(cookieParser.parse)
@@ -144,10 +128,6 @@ server.post('/game/p/action', player_action);
 var conString = "mongodb://localhost/ships";
 
 
-var client = mubsub(conString);
-var channel = client.channel('test');
-
-
 server.get('/sse', function(req, res) {
   // let request last as long as possible
   req.socket.setTimeout(0x7FFFFFFF);
@@ -156,8 +136,7 @@ server.get('/sse', function(req, res) {
   var p_id = cookies['p_id'];
 
   var messageCount = 0;
-  var subscriber = client.channel('test');
-  //var subscriber = channel;
+  var subscriber = game.channel;
 
   // In case we encounter an error...print it out to the console
   subscriber.on("error", function(err) {
@@ -193,6 +172,9 @@ server.get('/sse', function(req, res) {
 
 server.listen(process.env.PORT, process.env.IP, function() {
 //server.listen(8881, "192.168.0.1", function() {
-  console.log('listening: %s\n\n', server.url);
+  game.connect(conString, function(err) {
+      if(err) throw err;
+      console.log('listening: %s\n\n', server.url);
+  });
 });
 

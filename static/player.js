@@ -71,8 +71,7 @@ function touch_handler(ev)
 
 $.getJSON("/game/1/p/new", function(data) {
     console.log(data);
-    console.log(data.move);
-    var p_id=data.move["id"];
+    var p_id=data["id"];
     console.log("p_id =", p_id);
     $.getJSON("/game/status", function(stat) {
         planets=stat["planets"];

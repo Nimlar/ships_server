@@ -4,6 +4,7 @@
   "description": "ERROR: No README.md file found!",
   "main": "apps.js",
   "dependencies": {
+    "mongodb": "^2.0.35",
     "mubsub": "^1.0.4",
     "restify": "^3.0.2",
     "restify-cookies": "^0.1.1"
