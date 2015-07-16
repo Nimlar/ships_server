@@ -31,7 +31,7 @@ Game.prototype.connect = function(uri, cb)
         db.createCollection('ships', function( err, collection) {
             if (err)
                 cb(err);
-            this.ships = collection;
+            self.ships = collection;
             cb(null);
         });
     });
@@ -57,12 +57,12 @@ Game.prototype.get_new_id = function(cb)
 
 Game.prototype.get_status = function(g_id, cb)
 {
-    this.ships.findOne( {_id : g_id }, function(err, item) {
+    this.ships.findOne( {_id : mongodb.ObjectId(g_id) }, function(err, item) {
         if(err)
             cb(err);
 
-        planets = item.planets;
-        players = item.players;
+        var planets = item.planets;
+        var players = item.players;
         cb(null, planets, players);
     });
 };
@@ -72,12 +72,13 @@ Game.prototype.player_new = function (g_id, cb)
         var p_id = new mongodb.ObjectID();
         var planet_id = getRandomInt(0, NB_PLANETS);
         var p_info= {id : p_id, score : 0, planet_id : planet_id, action : 'idle' };
+        self=this;
         this.ships.update( { _id : mongodb.ObjectId(g_id) },
                                  { $push : {players : p_info }  },
                                  function(err) {
                                      if (err)
                                          cb(err);
-                                     this.channel.publish('player', { move : p_info } );
+                                     self.channel.publish('player', { move : p_info } );
                                      cb(null, p_id);
                                  });
 };
@@ -101,7 +102,7 @@ Game.prototype.player_action = function(g_id, p_id, load, cb) {
 };
 
 Game.prototype.player_status = function(g_id, p_id, cb) {
-    this.ships.findOne( {_id : g_id, players._id: p_id }, {_id:0, "players.$":1}, function(err, item) {
+    this.ships.findOne( {_id : mongodb.ObjectId(g_id), "players._id": mongodb.ObjectId(p_id) }, {_id:0, "players.$":1}, function(err, item) {
         if(err)
             cb(err);
         console.log(item);

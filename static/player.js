@@ -69,7 +69,10 @@ function touch_handler(ev)
     return false;
 }
 
-$.getJSON("/game/1/p/new", function(data) {
+
+g_id="55a8001cea2132237c54034f"
+
+$.getJSON("/game/"+g_id +"/p/new", function(data) {
     console.log(data);
     var p_id=data["id"];
     console.log("p_id =", p_id);

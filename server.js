@@ -18,6 +18,7 @@ function game_new(req, res, next) {
         if (err) {
             return next(err);
         }
+        res.setCookie('g_id', game_id, {path: "/game/"});
         res.send({'game_id': game_id});
         return next();
     });
@@ -44,7 +45,7 @@ function game_status(req, res, next) {
 
 function player_new(req, res, next)
 {
-    console.log("player_new");
+    console.log("player_new 0");
     var g_id = req.params.game_id;
     console.log(g_id);
     game.player_new(g_id, function(err, p_id) {
