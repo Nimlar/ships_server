@@ -91,7 +91,8 @@ Game.prototype.player_action = function(g_id, p_id, load, cb) {
                               { $set : {"players.$.action" : load['action'] ,
                                         "players.$.planet_id" : load["planet_id"]} },
                               function(err) { if(err) console.log(err) } );
-            this.channel.publish('player', { move : {id : p_id, score: 0, planet_id: load["planet_id"], action : 'work' }} );
+            console.log("player action publish");
+            this.channel.publish('player', {game_id: g_id , move: {id : p_id, score: 0, planet_id: load["planet_id"], action : 'work' }} );
             break;
         case "steal":
             break;
