@@ -1,22 +1,12 @@
 var s = Snap("#svg");
-var color=["red",
-        "yellow",
-        "green",
-        "blue",
-        "gray" ];
 var ships=[];
 var planets;
 
 
-function get_color(num)
-{
-    return color[num % color.length];
-}
-
 function add_ship(id, planet_id)
 {
     console.log("add player"+id);
-    ships[id] = new Ships(get_color(id));
+    ships[id] = new Ships(id);
     ships[id].next_planet = planets[planet_id];
     ships[id].prepare_move();
 }
