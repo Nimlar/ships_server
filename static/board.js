@@ -73,8 +73,7 @@ $.getJSON(server + "/game/new", function(data) {
         $('#newplayer').wrap(function() {
             return "<a href='" + player_url +"'></a>";
         });
-
-        var source = new EventSource('/sse');
+        var source = new EventSource('/sse/'+g_id);
         source.addEventListener('message', eventMessage, false);
 
     });

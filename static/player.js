@@ -97,7 +97,7 @@ $.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
         }
     });
 
-    var source = new EventSource('/sse');
+    var source = new EventSource('/sse/'+getParameterByName("game_id"));
     source.addEventListener('message', eventMessage, false);
 
 });

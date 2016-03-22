@@ -119,7 +119,7 @@ server.post('/game/p/action', player_action);
 var conString = "mongodb://localhost/ships";
 
 
-server.get('/sse', function(req, res) {
+server.get('/sse/:game_id', function(req, res) {
   // let request last as long as possible
   req.socket.setTimeout(0x7FFFFFFF);
   var cookies = req.cookies;
@@ -137,9 +137,13 @@ server.get('/sse', function(req, res) {
 
   // When we receive a message about the game from the PubSub channel
   var subscription = subscriber.subscribe("message", function(message) {
-    messageCount++; // Increment our message count
-    res.write('id: ' + messageCount + '\n');
-    res.write("data: " + JSON.stringify(message) + '\n\n'); // Note the extra newline
+    if(message.game_id == req.params.game_id) {
+        messageCount++; // Increment our message count
+        console.log("send msg id=" + messageCount);
+        res.write('id: ' + messageCount + '\n');
+        res.write("data: " + JSON.stringify(message) + '\n\n'); // Note the extra newline
+        console.log("       data=" + JSON.stringify(message));
+    }
   });
 
   //send headers for event-stream connection
