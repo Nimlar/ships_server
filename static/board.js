@@ -40,12 +40,15 @@ function eventMessage(e)
     }
 }
 
+//var server="http://miners-in.space"
+var server="http://localhost:4976"
 
-$.getJSON("http://miners-in.space/game/new", function(data) {
+
+$.getJSON(server + "/game/new", function(data) {
     console.log(data);
     var g_id=data["game_id"];
     console.log("game_id =", g_id);
-    $.getJSON("http://miners-in.space/game/status", function(stat) {
+    $.getJSON(server + "/game/status", function(stat) {
         planets=stat["planets"];
         var players=stat["players"] || [];
         for(i=0;i<planets.length;i++){
@@ -61,10 +64,14 @@ $.getJSON("http://miners-in.space/game/new", function(data) {
             add_ship(players[i]["id"], players[i]["planet_id"]);
         }
 
+        var player_url = server + '/player.html?game_id='+g_id ;
         qr.canvas({
             canvas: document.getElementById('newplayer'),
             size : 10,
-            value: 'http://miners-in.space/player.html&game_id='+g_id
+            value: player_url,
+        });
+        $('#newplayer').wrap(function() {
+            return "<a href='" + player_url +"'></a>";
         });
 
         var source = new EventSource('/sse');

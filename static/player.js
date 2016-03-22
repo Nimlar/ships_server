@@ -42,6 +42,8 @@ function eventMessage(e)
     }
 }
 
+//var server="http://miners-in.space"
+var server="http://localhost:4976"
 
 
 
@@ -52,7 +54,7 @@ function touch_handler(ev)
     var data =  {action: "move", planet_id : planet_id };
     console.log("will send:");
     console.log(data);
-    Snap.ajax("http://miners-in.space/game/p/action", data);
+    Snap.ajax(server + "/game/p/action", data);
 
 
     ev.preventDefault();
