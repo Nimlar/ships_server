@@ -103,20 +103,10 @@ server.use(cookieParser.parse)
 }));
 
 
-server.get( /\/?.*\.html/,
+server.get( /\/?.*\.[html,json,js,svg]/,
         restify.serveStatic({
                 directory : './static/',
                 default: 'index.html'
-        })
-);
-server.get( /\/?.*\.js/,
-        restify.serveStatic({
-                directory : './static/',
-        })
-);
-server.get( /\/?.*\.svg/,
-        restify.serveStatic({
-                directory : './static/',
         })
 );
 
