@@ -2,11 +2,14 @@ var Width = document.getElementById('svg').offsetWidth;
 var Height = document.getElementById('svg').offsetHeight;
 
 
-function Ships(color)
+function Ships(id)
 {
     this.pos=[0,0];
     this.prev=[0,0];
-    this.color=color;
+    var _md5 = md5(id);
+    var inter = "hsl(" + parseInt(_md5.substr(0,2),16)/255 + ",.7,.5)";
+    console.log(inter);
+    this.color=inter;
 
 }
 
