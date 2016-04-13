@@ -1,5 +1,4 @@
-var Width = document.getElementById('svg').offsetWidth;
-var Height = document.getElementById('svg').offsetHeight;
+var svgdiv = document.getElementById('svg').getBoundingClientRect();
 
 
 function Ships(id)
@@ -36,10 +35,10 @@ Ships.prototype.prepare_move = function()
 }
 Ships.prototype.move = function()
 {
-    var x0=this.prev[0]*Width;
-    var y0=this.prev[1]*Height;
-    var x1=this.pos[0]*Width;
-    var y1=this.pos[1]*Height;
+    var x0=this.prev[0]*svgdiv.width;
+    var y0=this.prev[1]*svgdiv.height;
+    var x1=this.pos[0]*svgdiv.width;
+    var y1=this.pos[1]*svgdiv.height;
 
     var t=new Snap.Matrix();
     t.translate(x1, y1);
@@ -54,8 +53,8 @@ Ships.prototype.gain = function(val){
     /* create the path to follow while animation */
     var p1x,p1y,cx,cy,p2x,p2y;
     var dx, dy;
-    p1x=this.planet.pos[0]*Width;
-    p1y=this.planet.pos[1]*Height;
+    p1x=this.planet.pos[0]*svgdiv.width;
+    p1y=this.planet.pos[1]*svgdiv.height;
     var bbox=this.img.getBBox();
     p2x=bbox.cx;
     p2y=bbox.cy;
@@ -76,7 +75,7 @@ Ships.prototype.gain = function(val){
 
 //    var t=s.path("M"+p1x+","+p1y +" Q"+ cx +","+ cy +","+ p2x +","+p2y)
 //    s.append(t);
-    pathStr="M"+this.planet.pos[0]*Width+"," + this.planet.pos[1]*Height+"q10,10,10,10"
+    pathStr="M"+this.planet.pos[0]*svgdiv.width+"," + this.planet.pos[1]*svgdiv.height+"q10,10,10,10"
     var timing = 800;
     Snap.animate( 0, 2, function( value ) {
         var dot = Snap.path.findDotsAtSegment(p1x,p1y,cx,cy,cx,cy,p2x,p2y,value/2);
@@ -111,10 +110,10 @@ Ships.prototype.to_planet = function(planet)
     this.planet=planet;
     this.next_planet=planet;
 
-    this.angle=Snap.angle(planet.pos[0]*Width, planet.pos[1]*Height, this.prev[0]*Width, this.prev[1]*Height);
+    this.angle=Snap.angle(planet.pos[0]*svgdiv.width, planet.pos[1]*svgdiv.height, this.prev[0]*svgdiv.width, this.prev[1]*svgdiv.height);
     var angle=Snap.rad(this.angle);
-    this.pos[0]=planet.pos[0]-planet.size*Math.cos(angle)/Width;
-    this.pos[1]=planet.pos[1]-planet.size*Math.sin(angle)/Height;
+    this.pos[0]=planet.pos[0]-planet.size*Math.cos(angle)/svgdiv.width;
+    this.pos[1]=planet.pos[1]-planet.size*Math.sin(angle)/svgdiv.height;
     this.time = 1000;
 }
 
@@ -122,8 +121,8 @@ Ships.prototype.rotate = function()
 {
     this.angle+=10;
     var angle=Snap.rad(this.angle);
-    this.pos[0]=this.planet.pos[0]-this.planet.size*Math.cos(angle)/Width;
-    this.pos[1]=this.planet.pos[1]-this.planet.size*Math.sin(angle)/Height;
+    this.pos[0]=this.planet.pos[0]-this.planet.size*Math.cos(angle)/svgdiv.width;
+    this.pos[1]=this.planet.pos[1]-this.planet.size*Math.sin(angle)/svgdiv.height;
     this.time=100+Math.floor(Math.random() *400);
 }
 

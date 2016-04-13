@@ -70,7 +70,7 @@ $.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
         planets=stat["planets"];
         var players=stat["players"] || [];
         for(i=0;i<planets.length;i++) {
-            planets[i].img=s.circle(planets[i].pos[0]*Width, planets[i].pos[1]*Height, planets[i].size*(Math.random()+.5))
+            planets[i].img=s.circle(planets[i].pos[0]*svgdiv.width, planets[i].pos[1]*svgdiv.height, planets[i].size)
             .attr({
                 fill: "#bada55",
                 stroke: "#000",
