@@ -121,8 +121,10 @@ Ships.prototype.rotate = function()
 {
     this.angle+=10;
     var angle=Snap.rad(this.angle);
-    this.pos[0]=this.planet.pos[0]-this.planet.size*Math.cos(angle)/svgdiv.width;
-    this.pos[1]=this.planet.pos[1]-this.planet.size*Math.sin(angle)/svgdiv.height;
+    if (this.planet) {
+        this.pos[0]=this.planet.pos[0]-this.planet.size*Math.cos(angle)/svgdiv.width;
+        this.pos[1]=this.planet.pos[1]-this.planet.size*Math.sin(angle)/svgdiv.height;
+    }
     this.time=100+Math.floor(Math.random() *400);
 }
 
