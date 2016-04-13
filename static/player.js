@@ -56,7 +56,6 @@ function touch_handler(ev)
 
 function reload_status(game_id)
 {
-    console.log("p_id =", p_id);
     $.getJSON("/game/status", function(stat) {
         planets=stat["planets"];
         var players=stat["players"] || [];
@@ -73,7 +72,6 @@ function reload_status(game_id)
         }
         //display existing player
         for (var i = 0; i < players.length ; i++) {
-            console.log("players["+i+"][\"id\"]"+ players[i]["id"])
             add_ship(players[i]["id"], players[i]["planet_id"]);
         }
     });
