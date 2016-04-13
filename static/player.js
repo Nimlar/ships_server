@@ -81,7 +81,7 @@ $.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
             .mouseup(touch_handler);
         }
         //display existing player
-        for (var i = 1; i < players.length ; i++) {
+        for (var i = 0; i < players.length ; i++) {
             console.log("players["+i+"][\"id\"]"+ players[i]["id"])
             add_ship(players[i]["id"], players[i]["planet_id"]);
         }

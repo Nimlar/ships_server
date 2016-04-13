@@ -58,7 +58,7 @@ $.getJSON(server + "/game/new", function(data) {
             });
         }
         //display existing player
-        for (var i = 1; i < players.length ; i++) {
+        for (var i = 0; i < players.length ; i++) {
             add_ship(players[i]["id"], players[i]["planet_id"]);
         }
 
