@@ -8,14 +8,12 @@ function Ships(id)
     this.prev=[0,0];
     var _md5 = md5(id);
     var inter = "hsl(" + parseInt(_md5.substr(0,2),16)/255 + ",.7,.5)";
-    console.log(inter);
     this.color=inter;
 
 }
 
 Ships.prototype.prepare_move = function()
 {
-    //console.log("prepare move "+ this.color);
     if (this.next_planet!=this.planet)
     {
         this.to_planet(this.next_planet);
@@ -38,7 +36,6 @@ Ships.prototype.prepare_move = function()
 }
 Ships.prototype.move = function()
 {
-    //console.log("move "+ this.color);
     var x0=this.prev[0]*Width;
     var y0=this.prev[1]*Height;
     var x1=this.pos[0]*Width;
@@ -109,7 +106,6 @@ Ships.prototype.lost = function(val){
 
 Ships.prototype.to_planet = function(planet)
 {
-    //console.log("to planet "+ this.color);
     this.prev[0]=this.pos[0];
     this.prev[1]=this.pos[1];
     this.planet=planet;
@@ -124,7 +120,6 @@ Ships.prototype.to_planet = function(planet)
 
 Ships.prototype.rotate = function()
 {
-    //console.log("rotate "+ this.color);
     this.angle+=10;
     var angle=Snap.rad(this.angle);
     this.pos[0]=this.planet.pos[0]-this.planet.size*Math.cos(angle)/Width;

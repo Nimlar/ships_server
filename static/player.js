@@ -4,8 +4,6 @@ var planets;
 
 function add_ship(id, planet_id)
 {
-    console.log("add player "+id);
-    console.log("on planet "+planet_id);
     ships[id] = new Ships(id);
     ships[id].next_planet = planets[planet_id];
     ships[id].prepare_move();
@@ -13,8 +11,6 @@ function add_ship(id, planet_id)
 function eventMessage(e)
 {
     var data = JSON.parse(e.data);
-    console.log(data);
-    console.log(data.move);
     if (data.move) {
         var id = data.move.id;
         var planet_id = data["move"]["planet_id"];
@@ -25,9 +21,7 @@ function eventMessage(e)
         }
     }
     if (data["gain"]) {
-        console.log("start");
         for(var i = 0 ; i < data["gain"].length ; i++){
-            console.log("ici");
             var id = data["gain"][i]["id"];
             var val = data["gain"][i]["value"];
             ships[id].gain(val);
@@ -52,8 +46,6 @@ function touch_handler(ev)
 {
     var planet_id= this.data("index");
     var data =  {action: "move", planet_id : planet_id };
-    console.log("will send:");
-    console.log(data);
     Snap.ajax(server + "/game/p/action", data);
 
 
@@ -88,8 +80,6 @@ $.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
             .touchend(touch_handler)
             .mouseup(touch_handler);
         }
-        console.log(players);
-        console.log(planets);
         //display existing player
         for (var i = 1; i < players.length ; i++) {
             console.log("players["+i+"][\"id\"]"+ players[i]["id"])

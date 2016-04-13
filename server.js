@@ -13,7 +13,6 @@ var server = restify.createServer();
 
 
 function game_new(req, res, next) {
-    console.log("game_new");
     game.get_new_id( function(err, game_id) {
         if (err) {
             return next(err);
@@ -25,10 +24,8 @@ function game_new(req, res, next) {
 }
 
 function game_status(req, res, next) {
-    console.log("game_status");
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
-    console.log(g_id);
 
     game.get_status(g_id, function(err, planets, players) {
         if (err) {
@@ -45,9 +42,7 @@ function game_status(req, res, next) {
 
 function player_new(req, res, next)
 {
-    console.log("player_new 0");
     var g_id = req.params.game_id;
-    console.log(g_id);
     game.player_new(g_id, function(err, p_id) {
         if (err) {
             return next(err);
@@ -64,9 +59,6 @@ function player_action(req, res, next) {
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
-    console.log("player action");
-    console.log(g_id);
-    console.log(p_id);
     game.player_action(g_id, p_id, load, function(err) {
         if (err) {
             return next(err);
@@ -76,12 +68,9 @@ function player_action(req, res, next) {
 }
 
 function player_status(req, res, next) {
-    console.log("player_status");
     var cookies = req.cookies;
     var g_id = cookies['g_id'];
     var p_id = cookies['p_id'];
-    console.log(g_id);
-    console.log(p_id);
 
     var p_info = g_players_infos[p_id] ;
     game.player_status(g_id, p_id, function(err, p_info) {
@@ -139,10 +128,8 @@ server.get('/sse/:game_id', function(req, res) {
   var subscription = subscriber.subscribe("message", function(message) {
     if(message.game_id == req.params.game_id) {
         messageCount++; // Increment our message count
-        console.log("send msg id=" + messageCount);
         res.write('id: ' + messageCount + '\n');
         res.write("data: " + JSON.stringify(message) + '\n\n'); // Note the extra newline
-        console.log("       data=" + JSON.stringify(message));
     }
   });
 
@@ -169,7 +156,6 @@ server.listen(process.env.PORT, process.env.IP, function() {
 //server.listen(8881, "192.168.0.1", function() {
   game.connect(conString, function(err) {
       if(err) throw err;
-      console.log('listening: %s\n\n', server.url);
   });
 });
 

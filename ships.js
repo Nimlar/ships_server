@@ -91,7 +91,6 @@ Game.prototype.player_action = function(g_id, p_id, load, cb) {
                               { $set : {"players.$.action" : load['action'] ,
                                         "players.$.planet_id" : load["planet_id"]} },
                               function(err) { if(err) console.log(err) } );
-            console.log("player action publish");
             this.channel.publish('player', {game_id: g_id , move: {id : p_id, score: 0, planet_id: load["planet_id"], action : 'work' }} );
             break;
         case "steal":
@@ -106,7 +105,6 @@ Game.prototype.player_status = function(g_id, p_id, cb) {
     this.ships.findOne( {_id : mongodb.ObjectId(g_id), "players._id": mongodb.ObjectId(p_id) }, {_id:0, "players.$":1}, function(err, item) {
         if(err)
             cb(err);
-        console.log(item);
         cb(null, item.players[0]);
     });
 };

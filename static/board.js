@@ -5,7 +5,6 @@ var planets;
 
 function add_ship(id, planet_id)
 {
-    console.log("add player"+id);
     ships[id] = new Ships(id);
     ships[id].next_planet = planets[planet_id];
     ships[id].prepare_move();
@@ -14,7 +13,6 @@ function add_ship(id, planet_id)
 function eventMessage(e)
 {
     var data = JSON.parse(e.data);
-    console.log(data);
     if (data["move"]) {
         var id = data["move"]["id"];
         var planet_id = data["move"]["planet_id"];
