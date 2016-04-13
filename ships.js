@@ -78,8 +78,11 @@ Game.prototype.player_new = function (g_id, cb)
                                  function(err) {
                                      if (err)
                                          cb(err);
-                                     self.channel.publish('player', { move : p_info } );
-                                     cb(null, p_id);
+                                     self.channel.publish( 'player', {game_id: g_id, move : p_info},
+                                        function() {
+                                            cb(null, p_id);
+                                        }
+                                     );
                                  });
 };
 
