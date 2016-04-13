@@ -63,6 +63,7 @@ function player_action(req, res, next) {
         if (err) {
             return next(err);
         }
+        res.send(200);
         return next();
     });
 }
