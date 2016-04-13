@@ -54,17 +54,8 @@ function touch_handler(ev)
 }
 
 
-function getParameterByName(name)
+function reload_status(game_id)
 {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(location.search);
-    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
-
-$.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
-    console.log(data);
-    var p_id=data["id"];
     console.log("p_id =", p_id);
     $.getJSON("/game/status", function(stat) {
         planets=stat["planets"];
@@ -87,10 +78,29 @@ $.getJSON("/game/"+getParameterByName("game_id") +"/p/new", function(data) {
         }
     });
 
-    var source = new EventSource('/sse/'+getParameterByName("game_id"));
+    var source = new EventSource('/sse/'+game_id);
     source.addEventListener('message', eventMessage, false);
 
-});
+
+}
+
+
+// screen.orientation.lock("landscape");
+if (  (getParameterByName("game_id") === readCookie("game_id"))
+    && readCookie("game_id") ) {
+//same game but reload
+    game_id=getParameterByName("game_id")
+    reload_status(game_id)
+} else {
+    game_id=getParameterByName("game_id")
+    $.getJSON("/game/" + game_id +"/p/new", function(data) {
+        //var p_id=data["id"];
+
+        reload_status(game_id)
+    });
+}
+
+
 function move_all(){
     for(i=0;i<ships.length;i++){
         var dest = planets[Math.floor((Math.random() * planets.length))];

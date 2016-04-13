@@ -41,12 +41,12 @@ function eventMessage(e)
 //var server="http://miners-in.space"
 var server="http://localhost:4976"
 
-
-$.getJSON(server + "/game/new", function(data) {
-    console.log(data);
-    var g_id=data["game_id"];
-    console.log("game_id =", g_id);
-    $.getJSON(server + "/game/status", function(stat) {
+function reload_status(game_id)
+{
+    $.ajax({dataType: "json",
+           url: server + "/game/status",
+//           xhrFields: { withCredentials: false },
+           success: function(stat) {
         planets=stat["planets"];
         var players=stat["players"] || [];
         for(i=0;i<planets.length;i++){
@@ -62,7 +62,7 @@ $.getJSON(server + "/game/new", function(data) {
             add_ship(players[i]["id"], players[i]["planet_id"]);
         }
 
-        var player_url = server + '/player.html?game_id='+g_id ;
+        var player_url = server + '/player.html?game_id='+game_id ;
         qr.canvas({
             canvas: document.getElementById('newplayer'),
             size : 10,
@@ -71,12 +71,21 @@ $.getJSON(server + "/game/new", function(data) {
         $('#newplayer').wrap(function() {
             return "<a href='" + player_url +"'></a>";
         });
-        var source = new EventSource('/sse/'+g_id);
+        var source = new EventSource('/sse/'+game_id);
         source.addEventListener('message', eventMessage, false);
 
-    });
-});
+    }});
+}
 
+if (!readCookie("g_id") || getParameterByName("force") )
+{
+    $.getJSON(server + "/game/new", function(data) {
+        var g_id=data["game_id"];
+        reload_status(g_id)
+    });
+} else {
+    reload_status(readCookie("g_id"))
+}
 
 
 function move_all(){
