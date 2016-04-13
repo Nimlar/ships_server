@@ -79,11 +79,13 @@ function reload_status(game_id)
 
 if (!readCookie("g_id") || getParameterByName("force") )
 {
+    console.log("new game");
     $.getJSON(server + "/game/new", function(data) {
         var g_id=data["game_id"];
         reload_status(g_id)
     });
 } else {
+    console.log("reload game "+ readCookie("g_id"));
     reload_status(readCookie("g_id"))
 }
 

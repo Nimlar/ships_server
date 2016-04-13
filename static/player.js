@@ -88,9 +88,11 @@ if (  (getParameterByName("game_id") === readCookie("game_id"))
     && readCookie("game_id") ) {
 //same game but reload
     game_id=getParameterByName("game_id")
+    console.log("reload game "+ game_id);
     reload_status(game_id)
 } else {
     game_id=getParameterByName("game_id")
+    console.log(" new player for "+ game_id);
     $.getJSON("/game/" + game_id +"/p/new", function(data) {
         //var p_id=data["id"];
 
