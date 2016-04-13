@@ -17,7 +17,7 @@ function game_new(req, res, next) {
         if (err) {
             return next(err);
         }
-        res.setCookie('g_id', game_id, {path: "/game/"});
+        res.setCookie('g_id', game_id, {path: "/"});
         res.send({'game_id': game_id});
         return next();
     });
@@ -47,8 +47,8 @@ function player_new(req, res, next)
         if (err) {
             return next(err);
         }
-        res.setCookie('p_id', p_id, {path: "/game/"});
-        res.setCookie('g_id', g_id, {path: "/game/"});
+        res.setCookie('g_id', g_id, {path: "/"});
+        res.setCookie('p_id', p_id, {path: "/"});
         res.send({id:p_id});
         return next();
     });
