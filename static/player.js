@@ -84,8 +84,8 @@ function reload_status(game_id)
 
 
 // screen.orientation.lock("landscape");
-if (  (getParameterByName("game_id") === readCookie("game_id"))
-    && readCookie("game_id") ) {
+if (  (getParameterByName("game_id") === readCookie("g_id"))
+    && readCookie("g_id") ) {
 //same game but reload
     game_id=getParameterByName("game_id")
     console.log("reload game "+ game_id);
