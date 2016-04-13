@@ -43,7 +43,7 @@ Game.prototype.get_new_id = function(cb)
     var planets=[];
     var nb_planets = NB_PLANETS;
     for (i = 0; i < nb_planets; i++) {
-        planets.push({ pos : [getRandom(.08  ,.92), getRandom(.08  ,.92)], size:15});
+        planets.push({ pos : [getRandom(.08  ,.92), getRandom(.08  ,.92)], size:15*(Math.random()+.5)});
     }
     game_id = new mongodb.ObjectID();
     this.ships.insert( { _id : game_id, planets : planets, players : [] },
