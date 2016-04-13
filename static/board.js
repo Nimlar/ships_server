@@ -50,7 +50,7 @@ function reload_status(game_id)
         planets=stat["planets"];
         var players=stat["players"] || [];
         for(i=0;i<planets.length;i++){
-            planets[i].img=s.circle(planets[i].pos[0]*svgdiv.width, planets[i].pos[1]*svgdiv.height, planets[i].size*(Math.random()+.5));
+            planets[i].img=s.circle(planets[i].pos[0]*svgdiv.width, planets[i].pos[1]*svgdiv.height, planets[i].size);
             planets[i].img.attr({
                 fill: "#bada55",
                 stroke: "#000",
