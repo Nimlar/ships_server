@@ -13,11 +13,14 @@ function Ships(id)
 
 Ships.prototype.prepare_move = function()
 {
-    if (this.next_planet!=this.planet)
-    {
-        this.to_planet(this.next_planet);
-    }else {
-        this.rotate();
+    if (!this.next_planet) {
+            this.to_space(this.next_coord)
+    } else {
+        if (this.next_planet!=this.planet) {
+            this.to_planet(this.next_planet);
+        } else {
+            this.rotate();
+        }
     }
     if (this.img === undefined) {
         var that=this;
@@ -35,6 +38,7 @@ Ships.prototype.prepare_move = function()
 }
 Ships.prototype.move = function()
 {
+//    console.log("move");
     var x0=this.prev[0]*svgdiv.width;
     var y0=this.prev[1]*svgdiv.height;
     var x1=this.pos[0]*svgdiv.width;
@@ -114,6 +118,26 @@ Ships.prototype.to_planet = function(planet)
     var angle=Snap.rad(this.angle);
     this.pos[0]=planet.pos[0]-planet.size*Math.cos(angle)/svgdiv.width;
     this.pos[1]=planet.pos[1]-planet.size*Math.sin(angle)/svgdiv.height;
+    this.time = 1000;
+}
+
+Ships.prototype.to_space = function(coord)
+{
+//    console.log("to_space");
+    this.prev[0]=this.pos[0];
+    this.prev[1]=this.pos[1];
+
+    if ((coord[0]==this.pos[0]) &&
+        (coord[1]==this.pos[1]) ) {
+        this.time = 100;
+        return;
+    }
+    this.planet=undefined;
+    this.next_planet=undefined;
+
+    this.angle=Snap.angle(coord[0]*svgdiv.width, coord[1]*svgdiv.height, this.prev[0]*svgdiv.width, this.prev[1]*svgdiv.height);
+    this.pos[0]=coord[0];
+    this.pos[1]=coord[1];
     this.time = 1000;
 }
 

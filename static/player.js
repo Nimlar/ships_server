@@ -2,6 +2,9 @@ var s = Snap("#svg");
 var ships=[];
 var planets;
 
+s.touchend(space_touch_handler)
+ .mouseup(space_touch_handler);
+
 function add_ship(id, planet_id)
 {
     ships[id] = new Ships(id);
@@ -10,15 +13,25 @@ function add_ship(id, planet_id)
 }
 function eventMessage(e)
 {
+    console.log("eventMessage");
     var data = JSON.parse(e.data);
+    console.log(data);
     if (data.move) {
         var id = data.move.id;
         var planet_id = data["move"]["planet_id"];
-        if ( ships[id] == undefined) {
-            add_ship(id, planet_id);
-        } else {
-            ships[id].next_planet = planets[planet_id];
+        if (planet_id) {
+            if ( ships[id] == undefined) {
+                add_ship(id, planet_id);
+            } else {
+                ships[id].next_planet = planets[planet_id];
+                ships[id].next_coord=undefined;
+            }
+        } else { /* move without planet_id*/
+            var coord = data["move"]["coord"];
+            ships[id].next_planet = undefined;
+            ships[id].next_coord=[parseFloat(coord[0]),parseFloat(coord[1])] ;
         }
+
     }
     if (data["gain"]) {
         for(var i = 0 ; i < data["gain"].length ; i++){
@@ -41,15 +54,28 @@ var server="http://localhost:4976"
 
 
 
-
-function touch_handler(ev)
+function space_touch_handler(ev)
 {
-    var planet_id= this.data("index");
-    var data =  {action: "move", planet_id : planet_id };
+    var coord = [ev.clientX/svgdiv.width, ev.clientY/svgdiv.height ];
+    console.log("space_touch_handler")
+    var data =  {action: "move_to_space", X : coord[0], Y : coord[1] };
+
     Snap.ajax(server + "/game/p/action", data);
 
+    ev.preventDefault();
+    ev.stopPropagation()
+    return false;
+}
+
+function planet_touch_handler(ev)
+{
+    console.log("planet_touch_handler")
+    var planet_id= this.data("index");
+    var data =  {action: "move_to_planet", planet_id : planet_id };
+    Snap.ajax(server + "/game/p/action", data);
 
     ev.preventDefault();
+    ev.stopPropagation()
     return false;
 }
 
@@ -67,8 +93,8 @@ function reload_status(game_id)
                 strokeWidth: i
             })
             .data("index", i)
-            .touchend(touch_handler)
-            .mouseup(touch_handler);
+            .touchend(planet_touch_handler)
+            .mouseup(planet_touch_handler);
         }
         //display existing player
         for (var i = 0; i < players.length ; i++) {

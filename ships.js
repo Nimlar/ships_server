@@ -89,16 +89,26 @@ Game.prototype.player_new = function (g_id, cb)
 Game.prototype.player_action = function(g_id, p_id, load, cb) {
 
     switch (load['action']) {
-        case "move":
+        case "move_to_planet":
             this.ships.update({ _id : mongodb.ObjectId(g_id), "players._id" : mongodb.ObjectId(p_id)  },
                               { $set : {"players.$.action" : load['action'] ,
-                                        "players.$.planet_id" : load["planet_id"]} },
+                                        "players.$.planet_id" : load["planet_id"],
+                                        "players.$.action_time" : new Date() } },
                               function(err) { if(err) console.log(err) } );
             this.channel.publish('player', {game_id: g_id , move: {id : p_id, score: 0, planet_id: load["planet_id"], action : 'work' }} );
+            break;
+        case "move_to_space":
+            this.ships.update({ _id : mongodb.ObjectId(g_id), "players._id" : mongodb.ObjectId(p_id)  },
+                              { $set : {"players.$.action" : load['action'] ,
+                                        "players.$.coord" : [load["X"], load["Y"]],
+                                        "players.$.action_time" : new Date() } },
+                              function(err) { if(err) console.log(err) } );
+            this.channel.publish('player', {game_id: g_id , move: {id : p_id, score: 0, coord: [load["X"],load["Y"]] , action : 'still' }} );
             break;
         case "steal":
             break;
         case "harvest":
+
             break;
     }
     cb(null);
